@@ -34,12 +34,14 @@ void add(Node*& head, Node*& current, Node*& previous, int data);
 void sort(Node*& head, Node*& current);
 void search(Node* current, int &data, Node* head);
 void delsort(Node* &head, Node* &tmp);
-void rotateLeft(Node*& head, Node*& current);
-void rotateRight(Node*& head, Node*& current);
+void rotateLeft(Node* head, Node*& current);
+void rotateRight(Node* head, Node*& current);
 void blacks(Node* &head, Node* &cur);
 Node* getSibling(Node* &cur);
 Node* getChild(Node* &cur);
 Node* replace(Node* &cur);
+bool rChild(Node* &cur);
+void swap(Node* &one, Node* &two);
 
     int main() {
     
@@ -123,39 +125,6 @@ void delsort(Node* &head, Node* &tmp) {
 		}
 	}
 }
- 
-//replace node
-Node* replace(Node* &cur) {
-	//2 child
-	if(cur ->getPrev() != NULL && cur -> getNext() != NULL) {
-		Node* next = cur -> getNext();
-		return getChild(next);
-	}
-	//0 child
-	else if(cur -> getPrev() == NULL && cur -> getNext() == NULL) {
-		return NULL;
-	}
-	else {
-		if (cur -> getPrev() != NULL) {
-			return cur -> getPrev();
-		}
-		else {
-			return cur -> getNext();
-		}
-	}
-}
-//find the next in line
-Node* getChild(Node* &cur) {
-	Node* news = cur;
-	while (news -> getPrev() != NULL) {
-		news = news -> getPrev();
-	}
-	return news;
-}
-
-void blacks(Node* &head, Node* &cur) {
-
-}
 
 //I made 2 rotate functions since theres so much in deletion, the rotating in insertion are still the same as before
 void rotateLeft(Node* head, Node*& current) {
@@ -198,6 +167,135 @@ void rotateRight(Node* head, Node*& current) {
     	}	
 	left->setNext(current);
     	current->setParent(left);
+}
+
+//replace node
+Node* replace(Node* &cur) {
+	//2 child
+	if(cur ->getPrev() != NULL && cur -> getNext() != NULL) {
+		Node* next = cur -> getNext();
+		return getChild(next);
+	}
+	//0 child
+	else if(cur -> getPrev() == NULL && cur -> getNext() == NULL) {
+		return NULL;
+	}
+	else {
+		if (cur -> getPrev() != NULL) {
+			return cur -> getPrev();
+		}
+		else {
+			return cur -> getNext();
+		}
+	}
+}
+//swaps values
+void swap(Node* &one, Node* &two) {
+	int tmp;
+	tmp = one -> getData();
+	one -> setData(two -> getData());
+	two -> setData(tmp);
+}
+
+//find the next in line
+Node* getChild(Node* &cur) {
+	Node* news = cur;
+	while (news -> getPrev() != NULL) {
+		news = news -> getPrev();
+	}
+	return news;
+}
+
+//get sibling
+Node* getSibling(Node* &cur) {
+	if (cur -> getParent() == NULL) {
+		return NULL;
+	}
+	if (cur == cur -> getParent() -> getPrev()) {
+		return cur -> getParent() -> getNext();
+	}
+	else {
+		return cur -> getParent() -> getPrev();
+	}
+}
+
+bool rChild(Node* &cur) {
+	if (cur -> getPrev() != NULL && cur -> getPrev() -> getColor() == 1) {
+		return true;
+  	} 
+	else if (cur -> getNext() != NULL && cur -> getNext() -> getColor() == 1) {
+    		return true;
+  	} 
+	else {
+    		return false;
+  	}
+}
+
+void blacks(Node* &head, Node* &cur) {
+	if (cur == head) {
+		return;
+	}
+
+	Node* sibling = getSibling(cur);
+	Node* parent = cur -> getParent();
+
+	if (sibling == NULL) {
+		blacks(head, parent);
+	}
+	else {
+		//red sib
+		if (sibling -> getColor() == 1) {
+			parent -> setColor(1);
+			sibling -> setColor(0);
+			if (sibling == parent -> getPrev()) {
+				rotateRight(head, parent);
+			}
+			else {
+				rotateLeft(head, parent);
+			}
+			blacks(head, cur);
+		}
+		//black sib
+		else {
+			if (rChild(sibling) == true) {
+				if (sibling -> getPrev() != NULL && sibling -> getPrev() -> getColor() == 1) {
+					//left is red
+					if (sibling == parent -> getPrev()) {
+						sibling -> getPrev() -> setColor(sibling -> getColor());
+						sibling -> setColor(parent -> getColor());
+						rotateRight(head, parent);
+					}
+					else {
+						sibling -> getPrev() -> setColor(parent -> getColor());
+						rotateRight(head, sibling);
+						rotateLeft(head, parent);
+					}
+				}
+				else {
+					if (sibling == parent -> getPrev()) {
+						sibling -> getNext() -> setColor(parent -> getColor());
+						rotateLeft(head, sibling);
+						rotateRight(head, parent);
+					}
+					else {
+						sibling -> getNext() -> setColor(sibling -> getColor());
+						sibling -> setColor(parent -> getColor());
+						rotateLeft(head, parent);
+					}
+				}
+				parent -> setColor(0); 
+			}
+			else {
+				sibling -> setColor(1);
+				if (parent -> getColor() == 0) {
+					blacks(head, parent);
+				}
+				else {
+					parent -> setColor(0);
+				}
+			}
+		}
+	}
 }
 
     void sort(Node*& head, Node*& current) {
