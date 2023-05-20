@@ -34,8 +34,8 @@ void add(Node*& head, Node*& current, Node*& previous, int data);
 void sort(Node*& head, Node*& current);
 void search(Node* current, int &data, Node* head);
 void delsort(Node* &head, Node* &tmp);
-void rotateLeft(Node* head, Node*& current);
-void rotateRight(Node* head, Node*& current);
+void rotateLeft(Node*& head, Node*& current);
+void rotateRight(Node*& head, Node*& current);
 void blacks(Node* &head, Node* &cur);
 Node* getSibling(Node* &cur);
 Node* getChild(Node* &cur);
@@ -118,16 +118,58 @@ void delsort(Node* &head, Node* &tmp) {
 		if (tmp == head) {
 			head =  NULL;
 		}
-	}
-	else {
-		if (black) {
-			blacks(head, tmp);
+		else {
+			if (black) {
+				blacks(head, tmp);
+			}
+			else {
+				if (getSibling(tmp) != NULL) {
+					getSibling(tmp) -> setColor(1);
+				}
+			}
+			if (tmp == parent -> getPrev()) {
+				parent -> setPrev(NULL);
+			}
+			else {
+				parent -> setNext(NULL);
+			}
 		}
+		tmp -> ~Node();
+		return;
 	}
+	//1 child
+	if (tmp -> getNext() == NULL || tmp -> getPrev() == NULL) {
+		if (tmp == head) {
+			tmp -> setData(replaced -> getData());
+			tmp -> setPrev(NULL);
+			tmp -> setNext(NULL);
+
+			replaced -> ~Node();
+		}
+		else {
+			if (tmp == parent -> getPrev()) {
+				parent -> setPrev(replaced);
+			}
+			else {
+				parent -> setNext(replaced);
+			}
+			tmp -> ~Node();
+			replaced -> setParent(parent);
+			if (black) {
+				blacks(head, tmp);
+			}
+			else {
+				replaced -> setColor(0);
+			}
+		}
+		return;
+	}
+	swap(replaced, tmp);
+	delsort(head, replaced);
 }
 
 //I made 2 rotate functions since theres so much in deletion, the rotating in insertion are still the same as before
-void rotateLeft(Node* head, Node*& current) {
+void rotateLeft(Node*& head, Node*& current) {
 	Node* right = current->getNext();
   
     	current->setNext(right->getPrev());
@@ -148,7 +190,7 @@ void rotateLeft(Node* head, Node*& current) {
     	current->setParent(right);
 }
 
-void rotateRight(Node* head, Node*& current) {
+void rotateRight(Node*& head, Node*& current) {
 	Node* left = current->getPrev();
   
     	current->setPrev(left->getNext());
@@ -428,7 +470,6 @@ void blacks(Node* &head, Node* &cur) {
     				parent -> setColor(gparent -> getColor());
     				gparent -> setColor(color);
     				current = parent;
-    				print(head, NULL, false);
                    		}
     
     		}

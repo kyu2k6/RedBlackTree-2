@@ -8,7 +8,7 @@ Node::Node() {
 
 	color = 1;
 	parent = NULL;
-	data;
+	data = 0;
 	prev = NULL;
 	next = NULL;
 	
