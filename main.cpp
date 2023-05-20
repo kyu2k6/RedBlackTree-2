@@ -215,8 +215,8 @@ void rotateRight(Node*& head, Node*& current) {
 Node* replace(Node* &cur) {
 	//2 child
 	if(cur ->getPrev() != NULL && cur -> getNext() != NULL) {
-		Node* next = cur -> getNext();
-		return getChild(next);
+		Node* right = cur -> getNext();
+		return getChild(right);
 	}
 	//0 child
 	else if(cur -> getPrev() == NULL && cur -> getNext() == NULL) {
